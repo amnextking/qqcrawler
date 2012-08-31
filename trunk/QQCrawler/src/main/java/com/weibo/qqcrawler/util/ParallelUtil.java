@@ -19,10 +19,13 @@ public class ParallelUtil {
 //	private Jedis jedis = new Jedis(redisServer,6379,200000);
 	private Connection conn;
 
-	public ParallelUtil() throws SQLException, ClassNotFoundException{		
-		Class.forName("com.mysql.jdbc.Driver");
-		conn = DriverManager.getConnection(mysqlURL,mysqlUser,mysqlPW);
-//		jedis.select(3);
+	public ParallelUtil(){		
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(mysqlURL,mysqlUser,mysqlPW);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public UserSourceInfo getUnCrawledUserID() throws SQLException{
@@ -124,22 +127,18 @@ public class ParallelUtil {
 		st2.close();
 	}
 
-//
-//	private boolean isProcessing(String userID){
-//		while(true){
-//			try{
-//				Long result = jedis.setnx(userID, "1");
-//				if(result.longValue() == 0)
-//					return true;
-//				else
-//					return false;
-//			} catch(Exception e){
-//				//e.printStackTrace();
-//				jedis = new Jedis(redisServer,6379,200000);
-//				jedis.select(3);
-//			}
-//		}
-//	}
+	public ArrayList<String> getSendUser(int start, int end) throws SQLException{
+		ArrayList<String> resultList = new ArrayList<String>();
+		String query = "select User_ID from qq_weibo_user_info where is_selected = 0 limit " + start + "," + end ;
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery(query);
+		while(rs.next()){
+			String userID = rs.getString(1);
+			resultList.add(userID);
+		}
+		st.close();
+		return resultList;
+	}
 
 
 
