@@ -89,8 +89,7 @@ public class SendMain {
 		try{
 			qqLogin.login();
 		}catch (Exception e) {
-			//InetAddress addr = InetAddress.getLocalHost();
-			//String ip = addr.getHostAddress();
+
 			System.out.println("login failed, try to login with verify image");
 			qqLogin.loginWithVerify();
 			System.out.println("login with verify image successed");
