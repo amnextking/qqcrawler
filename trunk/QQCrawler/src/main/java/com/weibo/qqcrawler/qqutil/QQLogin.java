@@ -66,7 +66,7 @@ public class QQLogin {
 		} 
 	}
 	public Logger log; 
-	private LogManager logManger;
+//	private LogManager logManger;
 
 	private String getCurrTime(){
 		SimpleDateFormat tempDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -79,13 +79,13 @@ public class QQLogin {
 		this.pwd = pwd;
 		this.su = account;
 		htmlParser = new HTMLParser();		
-		logManger = LogManager.getLogManager();
-		logManger.reset();
-		log = Logger.getLogger(account);
-		SimpleDateFormat dateForm = new SimpleDateFormat("yyyyMMddHHmmss");
-		FileHandler fileHandler = new FileHandler(Setting.logFilePath + "/" + dateForm.format(new Date())+".log");
-		fileHandler.setFormatter(new MyLogHander()); 
-		log.addHandler(fileHandler);			
+//		logManger = LogManager.getLogManager();
+//		logManger.reset();
+//		log = Logger.getLogger(account);
+//		SimpleDateFormat dateForm = new SimpleDateFormat("yyyyMMddHHmmss");
+//		FileHandler fileHandler = new FileHandler(Setting.logFilePath + "/" + dateForm.format(new Date())+".log");
+//		fileHandler.setFormatter(new MyLogHander()); 
+//		log.addHandler(fileHandler);			
 	}
 
 	private void downloadImg(InputStream in,String fileName) throws IOException{
@@ -547,7 +547,7 @@ public class QQLogin {
 		}
 	}
 
-	public PostReturnInfo mail(String userID,String content) throws HttpException, IOException{
+	public PostReturnInfo mail(String userID, String content) throws HttpException, IOException{
 		PostReturnInfo postReturnInfo = new PostReturnInfo();
 		PostMethod post = new PostMethod("http://api.t.qq.com/inbox/pm_mgr.php");
 		post.addRequestHeader("Cookie", cookiesString);
