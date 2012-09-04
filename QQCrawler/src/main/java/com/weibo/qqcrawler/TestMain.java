@@ -72,12 +72,13 @@ public class TestMain {
 						
 						TimeUnit.SECONDS.sleep(10);
 					}else if(postReturnInfo.getReturnMsg().contains("你的操作过于频繁")){
-						qqLogin.log.info("操作过于频繁,等待10分钟");
+						System.out.println("操作过于频繁,等待10分钟");
 						TimeUnit.MINUTES.sleep(10);						
 					}else if(postReturnInfo.getReturnMsg().contains("未登录")){
 						qqLogin.reconnect();
 						qqLogin.login();
 					}else{
+						TimeUnit.SECONDS.sleep(10);
 						System.out.println("mail error code:" + postReturnInfo.getReturnCode());
 						System.out.println("mail error message:" + postReturnInfo.getReturnMsg());
 					}
@@ -89,7 +90,7 @@ public class TestMain {
 	public static void main(String[] args) throws Exception{
 		TestMain testMain = new TestMain();
 		int start =0;
-		int step = 2;
+		int step = 100;
 		int length = 2;
 		
 		System.setProperty( "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog" );
