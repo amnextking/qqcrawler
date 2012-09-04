@@ -188,7 +188,7 @@ public class QQLogin {
 		downloadImg(verifyGetMethod.getResponseBodyAsStream(), Setting.virifyImgPath + verifyCode + ".jpg");
 		L1:
 			while(true){
-				TimeUnit.SECONDS.sleep(10);
+				TimeUnit.MINUTES.sleep(1);
 				File imgPath = new File(Setting.virifyImgPath);
 				File[] files = imgPath.listFiles();
 				for(File file : files){
