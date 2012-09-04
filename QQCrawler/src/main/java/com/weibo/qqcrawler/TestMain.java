@@ -2,7 +2,6 @@ package com.weibo.qqcrawler;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -16,7 +15,7 @@ public class TestMain {
 	
 	public static ArrayList<String> sendUserList = new ArrayList<String>();
 	ParallelUtil parallelUtil = new ParallelUtil();
-	public static String weiboContent = "";
+	public static String weiboContent = "http://www.younilunwen.com/";
 	
 	public void getSendUserList(int start, int end ){
 		try {
@@ -49,30 +48,40 @@ public class TestMain {
 		String content = atContent.toString();
 		atContent.append("@").append(userID);
 		
-		if(getweiboStrSize(atContent.toString()+weiboContent) >= 140){
+		if(getweiboStrSize(atContent.toString()+weiboContent) < 140){
 			String realContent = content + weiboContent;
 			System.out.println(realContent);
 			
 			if(userID != null){
 				String commentUserID = userID;
-				String weiboID = qqLogin.getLatestWeiboID(commentUserID);
-				PostReturnInfo postReturnInfo = qqLogin.comment(weiboID, realContent);
-				if(postReturnInfo.getReturnCode() == 0){
+//				PostReturnInfo postReturnInfo = qqLogin.mail(userID, realContent);
+//				if(postReturnInfo.getReturnCode() == 0){
+//					System.out.println("send " + userID + " with " + realContent + " successed by comment");
+//					parallelUtil.finishSend(userID);//回写数据库，设置已发送
+//					TimeUnit.SECONDS.sleep(10);
+//					
+//				}else {
+//					TimeUnit.MINUTES.sleep(1);
 					
-					qqLogin.log.info("send " + userID + " with " + realContent + " successed by comment");
-//					sendedUserSet.add(userID);//回写数据库，设置已发送
-					
-					TimeUnit.SECONDS.sleep(10);
-				}else if(postReturnInfo.getReturnMsg().contains("你的操作过于频繁")){
-					qqLogin.log.info("操作过于频繁,等待10分钟");
-					TimeUnit.MINUTES.sleep(10);						
-				}else if(postReturnInfo.getReturnMsg().contains("未登录")){
-					qqLogin.reconnect();
-					qqLogin.login();
-				}else{
-					qqLogin.log.info("mail error code:" + postReturnInfo.getReturnCode());
-					qqLogin.log.info("mail error message:" + postReturnInfo.getReturnMsg());
-				}
+					String weiboID = qqLogin.getLatestWeiboID(commentUserID);
+					PostReturnInfo postReturnInfo = qqLogin.comment(weiboID, realContent);
+					if(postReturnInfo.getReturnCode() == 0){
+						
+						System.out.println("send " + userID + " with " + realContent + " successed by comment");
+						parallelUtil.finishSend(userID);//回写数据库，设置已发送
+						
+						TimeUnit.SECONDS.sleep(10);
+					}else if(postReturnInfo.getReturnMsg().contains("你的操作过于频繁")){
+						qqLogin.log.info("操作过于频繁,等待10分钟");
+						TimeUnit.MINUTES.sleep(10);						
+					}else if(postReturnInfo.getReturnMsg().contains("未登录")){
+						qqLogin.reconnect();
+						qqLogin.login();
+					}else{
+						System.out.println("mail error code:" + postReturnInfo.getReturnCode());
+						System.out.println("mail error message:" + postReturnInfo.getReturnMsg());
+					}
+//				}
 			}
 		}
 	}
@@ -80,8 +89,8 @@ public class TestMain {
 	public static void main(String[] args) throws Exception{
 		TestMain testMain = new TestMain();
 		int start =0;
-		int step = 100;
-		int length = 100;
+		int step = 2;
+		int length = 2;
 		
 		System.setProperty( "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog" );
 		HttpClient client = new HttpClient();
@@ -104,6 +113,7 @@ public class TestMain {
 		for(int index=0; index <length; index++ ){
 			
 			testMain.getSendUserList( ++start, step );
+			
 			
 			int size = sendUserList.size();
 			for(int i= 0; i<size; i++){
