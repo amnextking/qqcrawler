@@ -15,7 +15,8 @@ public class TestMain {
 	
 	public static ArrayList<String> sendUserList = new ArrayList<String>();
 	ParallelUtil parallelUtil = new ParallelUtil();
-	public static String weiboContent = "http://www.younilunwen.com/";
+//	public static String weiboContent = "http://www.younilunwen.com  " + " 有你论文网， 你身边的论文网， 欢迎你的光临 ！！！";
+	public static String weiboContent = "http://shop70611321.taobao.com  " + " 还在为话费担忧吗？ 足不出户，网上充值优惠进行时，全网最低价，欢迎你的光顾！！！";
 	
 	public void getSendUserList(int start, int end ){
 		try {
@@ -50,7 +51,7 @@ public class TestMain {
 		
 		if(getweiboStrSize(atContent.toString()+weiboContent) < 140){
 			String realContent = content + weiboContent;
-			System.out.println(realContent);
+//			System.out.println(realContent);
 			
 			if(userID != null){
 				String commentUserID = userID;
@@ -67,10 +68,10 @@ public class TestMain {
 					PostReturnInfo postReturnInfo = qqLogin.comment(weiboID, realContent);
 					if(postReturnInfo.getReturnCode() == 0){
 						
-						System.out.println("send " + userID + " with " + realContent + " successed by comment");
+						System.out.println("send " + userID + " with comment successed ");
 						parallelUtil.finishSend(userID);//回写数据库，设置已发送
 						
-						TimeUnit.SECONDS.sleep(10);
+						TimeUnit.SECONDS.sleep(15);
 					}else if(postReturnInfo.getReturnMsg().contains("你的操作过于频繁")){
 						System.out.println("操作过于频繁,等待10分钟");
 						TimeUnit.MINUTES.sleep(10);						
@@ -78,7 +79,7 @@ public class TestMain {
 						qqLogin.reconnect();
 						qqLogin.login();
 					}else{
-						TimeUnit.SECONDS.sleep(10);
+						TimeUnit.SECONDS.sleep(20);
 						System.out.println("mail error code:" + postReturnInfo.getReturnCode());
 						System.out.println("mail error message:" + postReturnInfo.getReturnMsg());
 					}
@@ -90,8 +91,8 @@ public class TestMain {
 	public static void main(String[] args) throws Exception{
 		TestMain testMain = new TestMain();
 		int start =0;
-		int step = 100;
-		int length = 2;
+		int step = 200;
+		int length = 5;
 		
 		System.setProperty( "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog" );
 		HttpClient client = new HttpClient();
@@ -111,6 +112,7 @@ public class TestMain {
 			System.out.println("login with verify image successed");
 		}
 		
+		int j =0;
 		for(int index=0; index <length; index++ ){
 			
 			testMain.getSendUserList( ++start, step );
@@ -118,6 +120,7 @@ public class TestMain {
 			
 			int size = sendUserList.size();
 			for(int i= 0; i<size; i++){
+				System.out.print(j++  + " > ");
 				testMain.sendMessage(sendUserList.get(i), qqLogin );
 			}
 			
