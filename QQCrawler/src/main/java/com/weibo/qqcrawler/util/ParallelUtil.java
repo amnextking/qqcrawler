@@ -124,6 +124,11 @@ public class ParallelUtil {
 		jdbcTemplate.update(updateSql);
 	}
 
+	public void deleteUser(String userID) throws SQLException{
+		String updateSql = "delete from qq_weibo_user where user_id = '" + userID + "'";
+		jdbcTemplate.update(updateSql);
+	}
+	
 	public static void main( String[] args ){
 		try {
 			
