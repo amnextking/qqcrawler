@@ -15,8 +15,13 @@ public class TestMain {
 	
 	public static ArrayList<String> sendUserList = new ArrayList<String>();
 	ParallelUtil parallelUtil = new ParallelUtil();
-//	public static String weiboContent = "http://www.younilunwen.com  " + " 有你论文网， 你身边的论文网， 欢迎你的光临 ！！！";
-	public static String weiboContent = "http://shop70611321.taobao.com  " + " 还在为话费担忧吗？ 足不出户，网上充值优惠进行时，全网最低价，欢迎你的光顾！！！";
+	public static String lunwenContent = "    http://www.younilunwen.com  "
+				+ "有你论文网由在校博士生与高校教师组成，我们秉承诚信与质量第一的原则，为您提供原创论文代写代发。有你论文网真诚欢迎您的光临与惠顾！！！      " 
+				+ "    http://www.younilunwen.com  ";
+	
+	public static String dianpuContent = "    http://shop70611321.taobao.com  "
+				+ "兄弟姐妹朋友们， 还在为话费高而担忧吗？ 还等什么呢，足不出户，网上充值优惠进行时，全网最低价，欢迎你的光顾！！！" 
+				+ "    http://shop70611321.taobao.com  ";
 	
 	public void getSendUserList(int start, int end ){
 		try {
@@ -40,7 +45,7 @@ public class TestMain {
 		return realCount;
 	}
 	
-	public void sendMessage(String userId, QQLogin qqLogin)throws Exception{
+	public void sendMessage(String userId, QQLogin qqLogin, String weiboContent)throws Exception{
 		
 		String ss[] = userId.split("\t");
 		String userID = ss[0];
@@ -68,10 +73,10 @@ public class TestMain {
 					PostReturnInfo postReturnInfo = qqLogin.comment(weiboID, realContent);
 					if(postReturnInfo.getReturnCode() == 0){
 						
-						System.out.println("send " + userID + " with comment successed ");
+						System.out.println("send " + userID + " with comment successed. ");
 						parallelUtil.finishSend(userID);//回写数据库，设置已发送
 						
-						TimeUnit.SECONDS.sleep(15);
+						TimeUnit.SECONDS.sleep(3);
 					}else if(postReturnInfo.getReturnMsg().contains("你的操作过于频繁")){
 						System.out.println("操作过于频繁,等待10分钟");
 						TimeUnit.MINUTES.sleep(10);						
@@ -79,9 +84,11 @@ public class TestMain {
 						qqLogin.reconnect();
 						qqLogin.login();
 					}else{
-						TimeUnit.SECONDS.sleep(20);
-						System.out.println("mail error code:" + postReturnInfo.getReturnCode());
+//						System.out.println("mail error code:" + postReturnInfo.getReturnCode());
 						System.out.println("mail error message:" + postReturnInfo.getReturnMsg());
+						
+						parallelUtil.deleteUser(userID);
+						System.out.println("send " + userID + " error, delete the user. ");
 					}
 //				}
 			}
@@ -117,11 +124,19 @@ public class TestMain {
 			
 			testMain.getSendUserList( ++start, step );
 			
-			
+			sendUserList.add("sendUserList");
 			int size = sendUserList.size();
 			for(int i= 0; i<size; i++){
 				System.out.print(j++  + " > ");
-				testMain.sendMessage(sendUserList.get(i), qqLogin );
+				try {
+					testMain.sendMessage(sendUserList.get(i), qqLogin, lunwenContent );
+					TimeUnit.SECONDS.sleep(2);
+					testMain.sendMessage(sendUserList.get(i), qqLogin, dianpuContent );
+					
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					
+				}
 			}
 			
 			start = step;
