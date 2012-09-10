@@ -76,7 +76,7 @@ public class TestMain {
 						System.out.println("send " + userID + " with comment successed. ");
 						parallelUtil.finishSend(userID);//回写数据库，设置已发送
 						
-						TimeUnit.SECONDS.sleep(3);
+						TimeUnit.SECONDS.sleep(5);
 					}else if(postReturnInfo.getReturnMsg().contains("你的操作过于频繁")){
 						System.out.println("操作过于频繁,等待10分钟");
 						TimeUnit.MINUTES.sleep(10);						
@@ -98,8 +98,8 @@ public class TestMain {
 	public static void main(String[] args) throws Exception{
 		TestMain testMain = new TestMain();
 		int start =0;
-		int step = 200;
-		int length = 5;
+		int step = 500;
+		int length = 10;
 		
 		System.setProperty( "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog" );
 		HttpClient client = new HttpClient();
@@ -130,7 +130,7 @@ public class TestMain {
 				System.out.print(j++  + " > ");
 				try {
 					testMain.sendMessage(sendUserList.get(i), qqLogin, lunwenContent );
-					TimeUnit.SECONDS.sleep(2);
+					TimeUnit.SECONDS.sleep(5);
 					testMain.sendMessage(sendUserList.get(i), qqLogin, dianpuContent );
 					
 				} catch (Exception e) {
