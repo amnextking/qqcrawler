@@ -2,6 +2,7 @@ package com.weibo.qqcrawler;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -15,13 +16,11 @@ public class TestMain {
 	
 	public static ArrayList<String> sendUserList = new ArrayList<String>();
 	ParallelUtil parallelUtil = new ParallelUtil();
-	public static String lunwenContent = "    http://www.younilunwen.com  "
-				+ "有你论文网由在校博士生与高校教师组成，我们秉承诚信与质量第一的原则，为您提供原创论文代写代发。有你论文网真诚欢迎您的光临与惠顾！！！      " 
-				+ "    http://www.younilunwen.com  ";
+	public static String lunwenContent = "  http://www.younilunwen.com  "
+				+ "有你论文网由在校博士生与高校教师组成，为您提供原创论文代写代发。有你论文网真诚欢迎您的光临与惠顾！！！";
 	
-	public static String dianpuContent = "    http://shop70611321.taobao.com  "
-				+ "兄弟姐妹朋友们， 还在为话费高而担忧吗？ 还等什么呢，足不出户，网上充值优惠进行时，全网最低价，欢迎你的光顾！！！" 
-				+ "    http://shop70611321.taobao.com  ";
+	public static String dianpuContent = "  http://shop70611321.taobao.com  "
+				+ "兄弟姐妹朋友们， 还在为话费高而担忧吗？ 还等什么呢，足不出户，网上充值优惠进行时，全网最低价，欢迎你的光顾！！！";
 	
 	public void getSendUserList(int start, int end ){
 		try {
@@ -95,11 +94,61 @@ public class TestMain {
 		}
 	}
 	
+	private String getAtContent(List<String> atUserIdList){
+		String content;
+		StringBuilder atContent = new StringBuilder();
+		for(String userId: atUserIdList){
+			atContent.append("@").append(userId).append(" ");
+		}
+		content = atContent.toString();
+		
+		return content;
+	}
+	
+	public void sendMessage(String userId, List<String> atUserIdList, QQLogin qqLogin, String weiboContent) throws Exception{
+		
+		String atContent = getAtContent(atUserIdList);
+		String realContent = atContent + weiboContent;
+		
+		if(getweiboStrSize(realContent) < 140){
+			
+			if(userId != null){
+				String commentUserId = userId;
+					
+				String weiboID = qqLogin.getLatestWeiboID(commentUserId);
+				PostReturnInfo postReturnInfo = qqLogin.comment(weiboID, realContent);
+				if(postReturnInfo.getReturnCode() == 0){
+					
+					System.out.println("send " + userId + " " + atContent + " comment successed. ");
+					
+					//批量回写数据库，设置已发送
+					atUserIdList.add(userId);
+					parallelUtil.finishSend(atUserIdList);
+					
+					TimeUnit.SECONDS.sleep(10);
+				}else if(postReturnInfo.getReturnMsg().contains("你的操作过于频繁")){
+					System.out.println("操作过于频繁,等待10分钟");
+					TimeUnit.MINUTES.sleep(10);						
+				}else if(postReturnInfo.getReturnMsg().contains("未登录")){
+					qqLogin.reconnect();
+					qqLogin.login();
+				}else{
+//						System.out.println("mail error code:" + postReturnInfo.getReturnCode());
+					System.out.println("mail error message:" + postReturnInfo.getReturnMsg());
+					
+					parallelUtil.deleteUser(userId);
+					System.out.println("send " + userId + " error, delete the user. ");
+				}
+			}
+		}
+	}
+	
+	
 	public static void main(String[] args) throws Exception{
 		TestMain testMain = new TestMain();
 		int start =0;
 		int step = 500;
-		int length = 10;
+		int length = 100;
 		
 		System.setProperty( "org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog" );
 		HttpClient client = new HttpClient();
@@ -119,19 +168,31 @@ public class TestMain {
 			System.out.println("login with verify image successed");
 		}
 		
-		int j =0;
+		int sendNum =0;
+		int atSize = 0;
+		List<String> atUserIdList = new ArrayList<String>();
 		for(int index=0; index <length; index++ ){
 			
 			testMain.getSendUserList( ++start, step );
 			
-			sendUserList.add("sendUserList");
+			sendUserList.add("zcx513566");
 			int size = sendUserList.size();
 			for(int i= 0; i<size; i++){
-				System.out.print(j++  + " > ");
+				
 				try {
-					testMain.sendMessage(sendUserList.get(i), qqLogin, lunwenContent );
-					TimeUnit.SECONDS.sleep(5);
-					testMain.sendMessage(sendUserList.get(i), qqLogin, dianpuContent );
+					sendNum++;
+					
+					if(atSize < 5 ){
+						atUserIdList.add(sendUserList.get(i));
+						atSize++;
+					}else{
+						System.out.print( sendNum + " > ");
+//						testMain.sendMessage(atUserIdList.get(0), atUserIdList.subList(1, 5), qqLogin, lunwenContent);
+						testMain.sendMessage(atUserIdList.get(0), atUserIdList.subList(1, 5), qqLogin, dianpuContent);
+						
+						atSize = 0;
+						atUserIdList.clear();
+					}
 					
 				} catch (Exception e) {
 					System.out.println(e.getMessage());

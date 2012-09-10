@@ -123,7 +123,23 @@ public class ParallelUtil {
 		String updateSql = "update qq_weibo_user set send_time = send_time + 1 where user_id = '" + userID + "'";
 		jdbcTemplate.update(updateSql);
 	}
+	
+	public void finishSend(List<String> userIDList) throws SQLException{
+		String userIdSql = getUserIdSql(userIDList);
+		String updateSql = "update qq_weibo_user set send_time = send_time + 1 where user_id in (" + userIdSql + ")";
+		jdbcTemplate.update(updateSql);
+	}
 
+	private String getUserIdSql(List<String> userIDList){
+		String userIdSql = "";
+		for(String userId: userIDList){
+			userIdSql += "'" + userId + "'";
+			userIdSql += ",";
+		}
+		userIdSql = userIdSql.substring(0, userIdSql.lastIndexOf(","));
+		return userIdSql;
+	}
+	
 	public void deleteUser(String userID) throws SQLException{
 		String updateSql = "delete from qq_weibo_user where user_id = '" + userID + "'";
 		jdbcTemplate.update(updateSql);
