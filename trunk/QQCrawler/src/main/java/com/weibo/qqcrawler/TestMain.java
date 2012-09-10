@@ -125,7 +125,7 @@ public class TestMain {
 					atUserIdList.add(userId);
 					parallelUtil.finishSend(atUserIdList);
 					
-					TimeUnit.SECONDS.sleep(10);
+					TimeUnit.SECONDS.sleep(15);
 				}else if(postReturnInfo.getReturnMsg().contains("你的操作过于频繁")){
 					System.out.println("操作过于频繁,等待10分钟");
 					TimeUnit.MINUTES.sleep(10);						
@@ -180,18 +180,20 @@ public class TestMain {
 			for(int i= 0; i<size; i++){
 				
 				try {
-					sendNum++;
 					
 					if(atSize < 5 ){
 						atUserIdList.add(sendUserList.get(i));
 						atSize++;
 					}else{
-						System.out.print( sendNum + " > ");
+						
+						sendNum++;
+						System.out.print( sendNum*5 + " > ");
 //						testMain.sendMessage(atUserIdList.get(0), atUserIdList.subList(1, 5), qqLogin, lunwenContent);
 						testMain.sendMessage(atUserIdList.get(0), atUserIdList.subList(1, 5), qqLogin, dianpuContent);
 						
-						atSize = 0;
+						atSize = 1;
 						atUserIdList.clear();
+						atUserIdList.add(sendUserList.get(i));
 					}
 					
 				} catch (Exception e) {
